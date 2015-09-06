@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 
 /**
  * Created by Steve on 9/5/2015.
@@ -23,6 +24,8 @@ public class MainMenuScreen implements Screen {
     Texture bucketImage;
     Rectangle raindrop;
     Rectangle bucket;
+
+    Vector3 touchPos = new Vector3(0,0,0);
 
     public MainMenuScreen(final Battlecon game) {
         this.game = game;
@@ -42,10 +45,12 @@ public class MainMenuScreen implements Screen {
         bucketImage = new Texture(Gdx.files.internal("bucket.png"));
         // setup the character panes
         bucket = new Rectangle();
-        bucket.x = game.GAME_WIDTH / 2 - 64 / 2; // center the bucket horizontally
+        bucket.x = game.GAME_WIDTH / 2 - 64 * 2; // center the bucket horizontally
         bucket.y = 20;
+        bucket.width = 100;
+        bucket.height = 100;
         raindrop = new Rectangle();
-        raindrop.x = game.GAME_WIDTH / 2 - 64 / 2; // center the bucket horizontally
+        raindrop.x = game.GAME_WIDTH / 2 + 64 * 2; // center the bucket horizontally
         raindrop.y = 20;
     }
 
@@ -60,10 +65,23 @@ public class MainMenuScreen implements Screen {
         // draw objects
         game.batch.begin();
         game.font.draw(game.batch, header, (game.GAME_WIDTH - header.width) / 2, 0.9f * game.GAME_HEIGHT);
-        game.font.draw(game.batch, instructions, (game.GAME_WIDTH - instructions.width)/2, 0.7f*game.GAME_HEIGHT);
+        game.font.draw(game.batch, instructions, (game.GAME_WIDTH - instructions.width) / 2, 0.7f * game.GAME_HEIGHT);
+        game.font.draw(game.batch, "x:"+touchPos.x+" y:"+touchPos.y, 100, 100);
+        game.font.draw(game.batch, "x:"+bucket.x+" y:"+bucket.y, 100, 150);
+        game.font.draw(game.batch, "contains: "+bucket.contains(touchPos.x, touchPos.y), 100, 80);
         game.batch.draw(bucketImage, bucket.x, bucket.y);
         game.batch.draw(dropImage, raindrop.x, raindrop.y);
         game.batch.end();
+        // start game once a character is chosen
+        if (Gdx.input.isTouched()) {
+            touchPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+            camera.unproject(touchPos);
+            if (bucket.contains(touchPos.x, touchPos.y)) {
+                game.setScreen(new ArenaScreen(game));
+                dispose();
+            }
+        }
+
     }
 
     @Override
