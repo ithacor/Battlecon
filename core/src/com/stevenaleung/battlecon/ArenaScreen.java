@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
+import com.stevenaleung.battlecon.bristol.Bristol;
+import com.stevenaleung.battlecon.carragus.Carragus;
 
 /**
  * Created by Steve on 9/5/2015.
@@ -17,20 +19,17 @@ public class ArenaScreen implements Screen {
 
     final Battlecon game;
 
-    Texture dropImage;
-    Texture bucketImage;
+    float numArenaSquares = 7;
+    Texture squareImage;
+    Array<Rectangle> squares;
+    float squareSize;
+    float columnSize;
 
     Sound dropSound;
     Music rainMusic;
     OrthographicCamera camera;
     Rectangle bucket;
     int dropsGathered;
-
-    float numArenaSquares = 7;
-    Texture squareImage;
-    Array<Rectangle> squares;
-    float squareSize;
-    float columnSize;
 
     Player player1;
     Player player2;
@@ -53,8 +52,8 @@ public class ArenaScreen implements Screen {
         }
 
         // create mock players
-        player1 = new Player(50, 100);
-        player2 = new Player(70, 80);
+        player1 = new Player(new Bristol(), 1);
+        player2 = new Player(new Carragus(), 5);
     }
 
     @Override
@@ -76,15 +75,17 @@ public class ArenaScreen implements Screen {
         // begin a new batch and draw the bucket and
         // all drops
         game.batch.begin();
-        game.font.draw(game.batch, "Player1", 10, 70);
-        game.font.draw(game.batch, "HP: "+player1.getCurrentHP(), 10, 50);
-        game.font.draw(game.batch, "Energy: " + player1.getCurrentEnergy(), 10, 30);
-        game.font.draw(game.batch, "Player2", 700, 70);
-        game.font.draw(game.batch, "HP: "+player2.getCurrentHP(), 700, 50);
-        game.font.draw(game.batch, "Energy: "+player2.getCurrentEnergy(), 700, 30);
         for (Rectangle square : squares) {
             game.batch.draw(squareImage, square.x, square.y, squareSize, squareSize);
         }
+        game.font.draw(game.batch, "Player1", 10, 70);
+        game.font.draw(game.batch, "HP: "+player1.getCurrentHP(), 10, 50);
+        game.font.draw(game.batch, "Energy: " + player1.getCurrentEnergy(), 10, 30);
+        game.batch.draw(player1.getCharacterImage(), columnSize*(player1.getPosition()+1)-squareSize/2, (game.GAME_HEIGHT-squareSize)/2, squareSize, squareSize);
+        game.font.draw(game.batch, "Player2", 700, 70);
+        game.font.draw(game.batch, "HP: "+player2.getCurrentHP(), 700, 50);
+        game.font.draw(game.batch, "Energy: " + player2.getCurrentEnergy(), 700, 30);
+        game.batch.draw(player2.getCharacterImage(), columnSize*(player2.getPosition()+1)-squareSize/2, (game.GAME_HEIGHT-squareSize)/2, squareSize, squareSize);
         game.batch.end();
     }
 
@@ -110,8 +111,6 @@ public class ArenaScreen implements Screen {
 
     @Override
     public void dispose() {
-        dropImage.dispose();
-        bucketImage.dispose();
         dropSound.dispose();
         rainMusic.dispose();
     }
